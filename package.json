@@ -1,6 +1,6 @@
 {
   "name": "@goldsb/wc-provider",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Web3 Provider for WalletConnect",
   "scripts": {
     "clean": "rm -rf dist",
