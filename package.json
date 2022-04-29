@@ -1,6 +1,6 @@
 {
   "name": "@goldsb/wc-provider",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Web3 Provider for WalletConnect",
   "scripts": {
     "clean": "rm -rf dist",
@@ -65,7 +65,7 @@
   "dependencies": {
     "@goldsb/wc-utils": "^1.0.2",
     "@walletconnect/client": "^1.7.8",
-    "@walletconnect/http-connection": "^1.7.8",
+    "@goldsb/wc-http-connection": "^1.0.1",
     "@walletconnect/qrcode-modal": "^1.7.8",
     "@walletconnect/types": "^1.7.8",
     "web3-provider-engine": "16.0.1"
