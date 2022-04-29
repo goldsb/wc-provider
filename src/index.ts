@@ -1,7 +1,7 @@
 import WalletConnect from "@walletconnect/client";
 import QRCodeModal from "@walletconnect/qrcode-modal";
 import HttpConnection from "@walletconnect/http-connection";
-import { payloadId, signingMethods, parsePersonalSign, getRpcUrl } from "@walletconnect/utils";
+import { payloadId, signingMethods, parsePersonalSign, getRpcUrl } from "@goldsb/wc-utils";
 import {
   IRPCMap,
   IConnector,
@@ -38,25 +38,25 @@ class WalletConnectProvider extends ProviderEngine {
   constructor(opts: IWalletConnectProviderOptions) {
     super({ pollingInterval: opts.pollingInterval || 8000 });
     this.bridge = opts.connector
-      ? opts.connector.bridge
-      : opts.bridge || "https://bridge.walletconnect.org";
+        ? opts.connector.bridge
+        : opts.bridge || "https://bridge.walletconnect.org";
     this.qrcode = typeof opts.qrcode === "undefined" || opts.qrcode !== false;
     this.qrcodeModal = opts.qrcodeModal || this.qrcodeModal;
     this.qrcodeModalOptions = opts.qrcodeModalOptions;
     this.wc =
-      opts.connector ||
-      new WalletConnect({
-        bridge: this.bridge,
-        qrcodeModal: this.qrcode ? this.qrcodeModal : undefined,
-        qrcodeModalOptions: this.qrcodeModalOptions,
-        storageId: opts?.storageId,
-        signingMethods: opts?.signingMethods,
-        clientMeta: opts?.clientMeta,
-      });
+        opts.connector ||
+        new WalletConnect({
+          bridge: this.bridge,
+          qrcodeModal: this.qrcode ? this.qrcodeModal : undefined,
+          qrcodeModalOptions: this.qrcodeModalOptions,
+          storageId: opts?.storageId,
+          signingMethods: opts?.signingMethods,
+          clientMeta: opts?.clientMeta,
+        });
     this.rpc = opts.rpc || null;
     if (
-      !this.rpc &&
-      (!opts.infuraId || typeof opts.infuraId !== "string" || !opts.infuraId.trim())
+        !this.rpc &&
+        (!opts.infuraId || typeof opts.infuraId !== "string" || !opts.infuraId.trim())
     ) {
       throw new Error("Missing one of the required parameters: rpc or infuraId");
     }
@@ -223,28 +223,28 @@ class WalletConnectProvider extends ProviderEngine {
           reject(new Error("User closed modal"));
         });
         wc.createSession({ chainId: this.chainId })
-          .then(() => {
-            wc.on("connect", (error, payload) => {
-              if (error) {
+            .then(() => {
+              wc.on("connect", (error, payload) => {
+                if (error) {
+                  this.isConnecting = false;
+                  return reject(error);
+                }
                 this.isConnecting = false;
-                return reject(error);
-              }
+                this.connected = true;
+                if (payload) {
+                  // Handle session update
+                  this.updateState(payload.params[0]);
+                }
+                // Emit connect event
+                this.emit("connect");
+                this.triggerConnect(wc);
+                resolve(wc);
+              });
+            })
+            .catch(error => {
               this.isConnecting = false;
-              this.connected = true;
-              if (payload) {
-                // Handle session update
-                this.updateState(payload.params[0]);
-              }
-              // Emit connect event
-              this.emit("connect");
-              this.triggerConnect(wc);
-              resolve(wc);
+              reject(error);
             });
-          })
-          .catch(error => {
-            this.isConnecting = false;
-            reject(error);
-          });
       } else {
         if (!this.connected) {
           this.connected = true;
@@ -325,19 +325,19 @@ class WalletConnectProvider extends ProviderEngine {
   sendAsyncPromise(method: string, params: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.sendAsync(
-        {
-          id: payloadId(),
-          jsonrpc: "2.0",
-          method,
-          params: params || [],
-        },
-        (error: any, response: any) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(response.result);
-        },
+          {
+            id: payloadId(),
+            jsonrpc: "2.0",
+            method,
+            params: params || [],
+          },
+          (error: any, response: any) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(response.result);
+          },
       );
     });
   }
@@ -345,13 +345,13 @@ class WalletConnectProvider extends ProviderEngine {
   private initialize() {
     this.updateRpcUrl(this.chainId);
     this.addProvider(
-      new FixtureSubprovider({
-        eth_hashrate: "0x00",
-        eth_mining: false,
-        eth_syncing: true,
-        net_listening: true,
-        web3_clientVersion: `WalletConnect/v1.x.x/javascript`,
-      }),
+        new FixtureSubprovider({
+          eth_hashrate: "0x00",
+          eth_mining: false,
+          eth_syncing: true,
+          net_listening: true,
+          web3_clientVersion: `WalletConnect/v1.x.x/javascript`,
+        }),
     );
     this.addProvider(new CacheSubprovider());
     this.addProvider(new SubscriptionsSubprovider());
