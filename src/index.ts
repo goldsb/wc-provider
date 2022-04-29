@@ -1,5 +1,5 @@
-import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/qrcode-modal";
+import WalletConnect from "@goldsb/wc-client";
+import QRCodeModal from "@goldsb/wc-qrcode-modal";
 import HttpConnection from "@goldsb/wc-http-connection";
 import { payloadId, signingMethods, parsePersonalSign, getRpcUrl } from "@goldsb/wc-utils";
 import {
